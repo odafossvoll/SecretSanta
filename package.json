@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test --test-isolation=none",
-    "build:pages": "node scripts/build-pages.mjs"
+    "build:pages": "node scripts/build-pages.mjs",
+    "backend:dev": "npx wrangler@latest dev --config backend/cloudflare/wrangler.jsonc",
+    "backend:deploy": "npx wrangler@latest deploy --config backend/cloudflare/wrangler.jsonc"
   },
   "engines": { "node": ">=22.5" }
 }

@@ -59,3 +59,9 @@ For å koble til en driftet versjon av `server.mjs`:
 `SECRET_SANTA_API_URL` er en offentlig endepunktadresse, ikke en hemmelighet.
 Administratorpassord, deltakerkoder, database og tildelinger skal aldri legges i
 GitHub Actions-variabler eller statiske filer.
+
+En produksjonsklar Cloudflare Workers + D1-backend ligger i
+`backend/cloudflare/`. Den bruker D1 for permanent, delt lagring, Worker Secrets
+for administratorpassord og sesjonsnøkkel, HMAC-hashing av deltakerkoder,
+serverstyrt komplett trekning, korte CORS-regler og rate limiting på innlogging.
+Se `backend/cloudflare/README.md` for oppsett og deploy.

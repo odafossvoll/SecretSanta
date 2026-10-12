@@ -1,8 +1,9 @@
 const $=s=>document.querySelector(s);let state=null,setup=false;
 const API_BASE=String(window.SECRET_SANTA_CONFIG?.apiBase||'').replace(/\/$/,'');
 const HAS_API=Boolean(API_BASE)||!location.hostname.endsWith('.github.io');
+let adminToken=sessionStorage.getItem('ss_admin_token')||'';
 function snow(){const h=$('#snow');for(let i=0;i<35;i++){const f=document.createElement('i');f.className='snowflake';f.textContent='•';f.style.left=Math.random()*100+'%';f.style.animationDuration=8+Math.random()*10+'s';f.style.animationDelay=-Math.random()*15+'s';f.style.setProperty('--drift',`${-40+Math.random()*80}px`);h.append(f)}}
-async function request(url,options={}){if(!HAS_API)throw new Error('Den sikre serveren er ikke koblet til ennå.');const r=await fetch(`${API_BASE}${url}`,{headers:{'Content-Type':'application/json'},credentials:'include',...options});const d=await r.json();if(!r.ok)throw new Error(d.error||'Noe gikk galt');return d}
+async function request(url,options={}){if(!HAS_API)throw new Error('Den sikre serveren er ikke koblet til ennå.');const headers={'Content-Type':'application/json',...(adminToken?{Authorization:`Bearer ${adminToken}`}:{})};const r=await fetch(`${API_BASE}${url}`,{headers,credentials:'include',...options});const d=await r.json();if(!r.ok)throw new Error(d.error||'Noe gikk galt');return d}
 function localDate(value){if(!value)return'';const d=new Date(value);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
 function escape(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function render(s){state=s;const r=s.round,locked=r.status!=='draft';$('#roundHeading').textContent=r.title;$('#participantCount').textContent=s.participants.length;$('#openedCount').textContent=s.participants.filter(p=>p.openedAt).length;$('#roundTitle').value=r.title;$('#budget').value=r.budget??'';$('#opensAt').value=localDate(r.opensAt);$('#christmasDate').value=localDate(r.christmasDate);$('#roundForm').querySelectorAll('input,button').forEach(x=>x.disabled=locked);$('#addForm').classList.toggle('hidden',locked);$('#ruleForm').classList.toggle('hidden',locked);
@@ -30,8 +31,8 @@ if(!HAS_API){
   $('#authForm').classList.add('hidden');
 }
 request('/api/admin/status').then(d=>{setup=d.setupRequired;if(setup){$('#authTitle').textContent='Opprett hovednøkkel';$('#authHint').textContent='Første gang: velg et administratorpassord på minst 10 tegn. Dette kan bare gjøres på servermaskinen.'}if(d.authenticated)load()}).catch(err=>{$('#authError').textContent=`Serverfeil: ${err.message}`});
-$('#authForm').onsubmit=async e=>{e.preventDefault();try{await request(setup?'/api/admin/setup':'/api/admin/login',{method:'POST',body:JSON.stringify({password:$('#password').value})});await load()}catch(err){$('#authError').textContent=err.message}};
-$('#logout').onclick=async()=>{await request('/api/admin/logout',{method:'POST'});location.reload()};
+$('#authForm').onsubmit=async e=>{e.preventDefault();try{const d=await request(setup?'/api/admin/setup':'/api/admin/login',{method:'POST',body:JSON.stringify({password:$('#password').value})});if(d.token){adminToken=d.token;sessionStorage.setItem('ss_admin_token',adminToken)}await load()}catch(err){$('#authError').textContent=err.message}};
+$('#logout').onclick=async()=>{await request('/api/admin/logout',{method:'POST'});sessionStorage.removeItem('ss_admin_token');location.reload()};
 $('#roundForm').onsubmit=async e=>{e.preventDefault();try{render(await request('/api/admin/round',{method:'PATCH',body:JSON.stringify({title:$('#roundTitle').value,budget:$('#budget').value,opensAt:$('#opensAt').value?new Date($('#opensAt').value).toISOString():'',christmasDate:new Date($('#christmasDate').value).toISOString()})}))}catch(err){$('#adminStatus').textContent=err.message}};
 $('#addForm').onsubmit=async e=>{
   e.preventDefault();

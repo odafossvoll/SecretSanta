@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "secret-santa-api",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-12",
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "PUBLIC_ORIGIN": "https://odafossvoll.github.io"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "secret-santa",
+      "database_id": "5e6da516-dbb9-4864-8e1c-3642a4ddf2dc",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "observability": { "enabled": true },
+  "secrets": { "required": ["ADMIN_PASSWORD", "SESSION_SECRET"] }
+}

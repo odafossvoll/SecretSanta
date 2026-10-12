@@ -242,6 +242,6 @@ function serve(res,urlPath) {
 }
 
 if (process.env.NODE_ENV !== 'test') createServer(async(req,res)=>{
-  try { const url=new URL(req.url,`http://${req.headers.host||'localhost'}`); if(req.method==='OPTIONS'&&url.pathname.startsWith('/api/')){res.writeHead(204,{'Access-Control-Allow-Origin':PUBLIC_ORIGIN||'null','Access-Control-Allow-Credentials':'true','Access-Control-Allow-Methods':'GET,POST,PUT,PATCH,DELETE,OPTIONS','Access-Control-Allow-Headers':'Content-Type','Vary':'Origin'});return res.end()} if(url.pathname.startsWith('/api/')) return await api(req,res,url); if(!serve(res,url.pathname)) error(res,404,'Ikke funnet.'); }
+  try { const url=new URL(req.url,`http://${req.headers.host||'localhost'}`); if(req.method==='OPTIONS'&&url.pathname.startsWith('/api/')){res.writeHead(204,{'Access-Control-Allow-Origin':PUBLIC_ORIGIN||'null','Access-Control-Allow-Credentials':'true','Access-Control-Allow-Methods':'GET,POST,PUT,PATCH,DELETE,OPTIONS','Access-Control-Allow-Headers':'Content-Type, Authorization','Vary':'Origin'});return res.end()} if(url.pathname.startsWith('/api/')) return await api(req,res,url); if(!serve(res,url.pathname)) error(res,404,'Ikke funnet.'); }
   catch(e) { console.error(e); error(res,500,e.message==='For stor forespørsel'?e.message:'Noe gikk galt på serveren.'); }
 }).listen(PORT,HOST,()=>console.log(`🎄 Secret Santa kjører på http://localhost:${PORT}`));
