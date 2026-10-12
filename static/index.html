@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#071f1d"><title>Den magiske julesekken</title>
-  <link rel="stylesheet" href="/styles.css?v=5"><script type="module" src="/app.js?v=5"></script>
+  <link rel="stylesheet" href="./styles.css?v=6"><script src="./config.js?v=6"></script><script type="module" src="./app.js?v=6"></script>
 </head>
 <body>
   <div class="sky" aria-hidden="true"><div id="snow"></div><div class="moon"></div><div class="stars"></div></div>
   <button id="sound" class="sound" aria-label="Slå julemusikk på">♪ <span>Musikk</span></button>
-  <a class="admin-link" href="/admin">Nissekontoret</a>
+  <a class="admin-link" href="./admin.html">Nissekontoret</a>
   <main>
     <header class="hero-copy">
       <p class="eyebrow">✦ DEN MAGISKE JULESEKKEN ✦</p>
@@ -16,6 +16,7 @@
       <p id="intro">Ho ho ho! Velkommen til årets Secret Santa. Nissen har ventet på akkurat deg.</p>
     </header>
 
+    <div id="hostingNotice" class="hosting-notice hidden" role="status"></div>
     <section class="game-stage" aria-live="polite">
       <div class="workshop" aria-hidden="true">
         <div class="roof"></div><div class="chimney"><i></i><i></i><i></i></div>

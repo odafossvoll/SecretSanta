@@ -43,11 +43,13 @@ if (!db.prepare('SELECT 1 FROM rounds LIMIT 1').get()) {
 
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || '0.0.0.0';
+const PUBLIC_ORIGIN = String(process.env.PUBLIC_ORIGIN || '').replace(/\/$/, '');
+const COOKIE_POLICY = PUBLIC_ORIGIN ? 'SameSite=None; Secure' : 'SameSite=Strict';
 const mime = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.svg':'image/svg+xml', '.png':'image/png', '.ico':'image/x-icon' };
 const rate = new Map();
 
 function json(res, status, body, cookies=[]) {
-  res.writeHead(status, { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', ...(cookies.length ? {'Set-Cookie': cookies} : {}) });
+  res.writeHead(status, { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', ...(PUBLIC_ORIGIN ? {'Access-Control-Allow-Origin':PUBLIC_ORIGIN,'Access-Control-Allow-Credentials':'true','Vary':'Origin'} : {}), ...(cookies.length ? {'Set-Cookie': cookies} : {}) });
   res.end(JSON.stringify(body));
 }
 function error(res, status, message) { json(res, status, { error: message }); }
@@ -118,19 +120,19 @@ async function api(req,res,url) {
     const ip=req.socket.remoteAddress||''; if(!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(ip)) return error(res,403,'Førstegangsoppsett må gjøres på maskinen som kjører serveren.');
     const b=await body(req), pass=safeText(b.password,200); if(pass.length<10) return error(res,400,'Bruk minst 10 tegn.');
     db.prepare("INSERT INTO settings(key,value) VALUES('admin_hash',?)").run(passwordHash(pass));
-    const token=newSession('admin'); return json(res,200,{ok:true},[`ss_admin=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000`]);
+    const token=newSession('admin'); return json(res,200,{ok:true},[`ss_admin=${token}; HttpOnly; ${COOKIE_POLICY}; Path=/; Max-Age=2592000`]);
   }
   if(path==='/api/admin/login' && req.method==='POST') {
     if(rateLimited(req,'admin-login',6)) return error(res,429,'For mange forsøk. Vent ett minutt.');
     const b=await body(req), row=db.prepare("SELECT value FROM settings WHERE key='admin_hash'").get();
     if(!row || !passwordOk(String(b.password||''),row.value)) return error(res,401,'Feil passord.');
-    const token=newSession('admin'); return json(res,200,{ok:true},[`ss_admin=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000`]);
+    const token=newSession('admin'); return json(res,200,{ok:true},[`ss_admin=${token}; HttpOnly; ${COOKIE_POLICY}; Path=/; Max-Age=2592000`]);
   }
-  if(path==='/api/admin/logout' && req.method==='POST') return json(res,200,{ok:true},['ss_admin=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0']);
+  if(path==='/api/admin/logout' && req.method==='POST') return json(res,200,{ok:true},[`ss_admin=; HttpOnly; ${COOKIE_POLICY}; Path=/; Max-Age=0`]);
   if(path==='/api/guest/logout' && req.method==='POST') {
     const token=cookies(req).ss_guest;
     if(token) db.prepare("DELETE FROM sessions WHERE token_hash=? AND kind='guest'").run(hash(token));
-    return json(res,200,{ok:true},['ss_guest=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0']);
+    return json(res,200,{ok:true},[`ss_guest=; HttpOnly; ${COOKIE_POLICY}; Path=/; Max-Age=0`]);
   }
   if(path.startsWith('/api/admin/') && !requireAdmin(req,res)) return;
   if(path==='/api/admin/state' && req.method==='GET') return json(res,200,adminState());
@@ -211,7 +213,7 @@ async function api(req,res,url) {
     if(r.opens_at && new Date(r.opens_at).getTime()>Date.now()) return error(res,403,`Trekningen åpner ${new Date(r.opens_at).toLocaleString('nb-NO')}.`);
     const p=db.prepare('SELECT * FROM participants WHERE round_id=? AND name=? COLLATE NOCASE').get(r.id,name);
     if(!p || p.code_hash!==hash(c)) return error(res,401,'Navn eller privat kode stemmer ikke.');
-    const token=newSession('guest',Number(p.id)); return json(res,200,{name:p.name,opened:!!p.opened_at},[`ss_guest=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000`]);
+    const token=newSession('guest',Number(p.id)); return json(res,200,{name:p.name,opened:!!p.opened_at},[`ss_guest=${token}; HttpOnly; ${COOKIE_POLICY}; Path=/; Max-Age=2592000`]);
   }
   if(path==='/api/me' && req.method==='GET') {
     const s=session(req,'guest'); if(!s) return error(res,401,'Skriv inn navn og kode først.');
@@ -240,6 +242,6 @@ function serve(res,urlPath) {
 }
 
 if (process.env.NODE_ENV !== 'test') createServer(async(req,res)=>{
-  try { const url=new URL(req.url,`http://${req.headers.host||'localhost'}`); if(url.pathname.startsWith('/api/')) return await api(req,res,url); if(!serve(res,url.pathname)) error(res,404,'Ikke funnet.'); }
+  try { const url=new URL(req.url,`http://${req.headers.host||'localhost'}`); if(req.method==='OPTIONS'&&url.pathname.startsWith('/api/')){res.writeHead(204,{'Access-Control-Allow-Origin':PUBLIC_ORIGIN||'null','Access-Control-Allow-Credentials':'true','Access-Control-Allow-Methods':'GET,POST,PUT,PATCH,DELETE,OPTIONS','Access-Control-Allow-Headers':'Content-Type','Vary':'Origin'});return res.end()} if(url.pathname.startsWith('/api/')) return await api(req,res,url); if(!serve(res,url.pathname)) error(res,404,'Ikke funnet.'); }
   catch(e) { console.error(e); error(res,500,e.message==='For stor forespørsel'?e.message:'Noe gikk galt på serveren.'); }
 }).listen(PORT,HOST,()=>console.log(`🎄 Secret Santa kjører på http://localhost:${PORT}`));

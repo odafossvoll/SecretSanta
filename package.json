@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "test": "node --test --test-isolation=none"
+    "test": "node --test --test-isolation=none",
+    "build:pages": "node scripts/build-pages.mjs"
   },
   "engines": { "node": ">=22.5" }
 }

@@ -30,3 +30,32 @@ npm test
 ```
 
 `PORT` og `HOST` kan settes som miljøvariabler. Standard er port 3000 på alle nettverksgrensesnitt.
+
+## GitHub Pages
+
+Prosjektet inneholder en GitHub Actions-workflow som bygger `static/` til et rent
+Pages-artefakt og publiserer ved push til `main`:
+
+```powershell
+npm run build:pages
+```
+
+Artefaktet havner i `dist/`. Alle nettleserressurser bruker relative adresser og
+fungerer derfor under `https://odafossvoll.github.io/SecretSanta/`.
+
+GitHub Pages er kun statisk hosting. Uten en separat HTTPS-backend kan den ikke
+tilby en felles deltakerliste, administratorinnlogging, private deltakerkoder,
+ønskelister eller hemmelige, permanente tildelinger. Pages-versjonen viser derfor
+en ærlig statusmelding og deaktiverer innlogging når backend ikke er konfigurert;
+den lagrer ikke sensitive data i nettleseren eller i repoet.
+
+For å koble til en driftet versjon av `server.mjs`:
+
+1. Drift serveren på en HTTPS-adresse med varig lagring for `.data`.
+2. Sett servermiljøvariabelen `PUBLIC_ORIGIN=https://odafossvoll.github.io`.
+3. Opprett repository variable `SECRET_SANTA_API_URL` med serverens HTTPS-adresse.
+4. Konfigurer administratorpassordet direkte på backend-maskinen før Pages tas i bruk.
+
+`SECRET_SANTA_API_URL` er en offentlig endepunktadresse, ikke en hemmelighet.
+Administratorpassord, deltakerkoder, database og tildelinger skal aldri legges i
+GitHub Actions-variabler eller statiske filer.

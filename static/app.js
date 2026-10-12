@@ -1,10 +1,12 @@
 const $=s=>document.querySelector(s);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 let me=null, round=null, audio=null, musicTimer=null;
+const API_BASE=String(window.SECRET_SANTA_CONFIG?.apiBase||'').replace(/\/$/,'');
+const HAS_API=Boolean(API_BASE)||!location.hostname.endsWith('.github.io');
 
 function snow(){const host=$('#snow');for(let i=0;i<55;i++){const f=document.createElement('i');f.className='snowflake';f.textContent=i%4?'•':'❄';f.style.left=Math.random()*100+'%';f.style.fontSize=4+Math.random()*10+'px';f.style.animationDuration=7+Math.random()*12+'s';f.style.animationDelay=-Math.random()*18+'s';f.style.setProperty('--drift',`${-50+Math.random()*100}px`);host.append(f)}}
 function sparkle(n=18){const host=$('#sparkles');for(let i=0;i<n;i++){const s=document.createElement('i');s.className='spark';s.textContent=i%2?'✦':'✧';s.style.setProperty('--x',`${-100+Math.random()*200}px`);s.style.setProperty('--y',`${-100+Math.random()*150}px`);s.style.animationDelay=Math.random()*.5+'s';host.append(s);setTimeout(()=>s.remove(),2200)}}
-async function request(url,options={}){const r=await fetch(url,{headers:{'Content-Type':'application/json'},...options});const data=await r.json();if(!r.ok)throw new Error(data.error||'Noe gikk galt');return data}
+async function request(url,options={}){if(!HAS_API)throw new Error('Den sikre serveren er ikke koblet til ennå.');const r=await fetch(`${API_BASE}${url}`,{headers:{'Content-Type':'application/json'},credentials:'include',...options});const data=await r.json();if(!r.ok)throw new Error(data.error||'Noe gikk galt');return data}
 function speak(text){$('#speech').textContent=text}
 function tone(freq,duration=.12,type='sine',gain=.04){if(!audio)return;const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(gain,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}
 function startMusic(){audio ||= new AudioContext();if(audio.state==='suspended')audio.resume();$('#sound').classList.add('on');$('#sound').setAttribute('aria-label','Slå julemusikk av');const notes=[392,494,587,494,440,523,659,523],play=()=>{if(!musicTimer)return;notes.forEach((n,i)=>setTimeout(()=>tone(n,.6,'sine',.018),i*430))};musicTimer=setInterval(play,notes.length*430);play()}
@@ -22,6 +24,13 @@ async function reveal(){
 }
 
 snow();
+if(!HAS_API){
+  const notice=$('#hostingNotice');
+  notice.classList.remove('hidden');
+  notice.innerHTML='<b>Juleverkstedet er publisert, men den sikre serveren mangler.</b><br>Design og animasjoner virker her. Innlogging, felles deltakerliste og hemmelige trekninger aktiveres når en backend-adresse er konfigurert.';
+  $('#loginForm').querySelectorAll('input,button').forEach(element=>element.disabled=true);
+  $('#loginError').textContent='Administrator må koble til en sikker backend før spillet kan brukes av deltakere.';
+}
 request('/api/guest/logout',{method:'POST',body:'{}'}).catch(()=>{}).finally(()=>{
   request('/api/public').then(d=>{round=d.round;if(round){$('#intro').textContent=`Ho ho ho! Velkommen til ${round.title}. Skriv inn navnet ditt og den private koden din for å finne ut hvem du skal overraske!`;countdown();if(round.budget)$('#intro').textContent+=` Årets gavebudsjett er opptil ${round.budget} kr.`}}).catch(()=>{});
 });
