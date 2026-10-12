@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071f1d"><title>Den magiske julesekken</title>
+  <link rel="stylesheet" href="/styles.css?v=5"><script type="module" src="/app.js?v=5"></script>
+</head>
+<body>
+  <div class="sky" aria-hidden="true"><div id="snow"></div><div class="moon"></div><div class="stars"></div></div>
+  <button id="sound" class="sound" aria-label="Slå julemusikk på">♪ <span>Musikk</span></button>
+  <a class="admin-link" href="/admin">Nissekontoret</a>
+  <main>
+    <header class="hero-copy">
+      <p class="eyebrow">✦ DEN MAGISKE JULESEKKEN ✦</p>
+      <h1>Hvem blir din<br><em>hemmelige julevenn?</em></h1>
+      <p id="intro">Ho ho ho! Velkommen til årets Secret Santa. Nissen har ventet på akkurat deg.</p>
+    </header>
+
+    <section class="game-stage" aria-live="polite">
+      <div class="workshop" aria-hidden="true">
+        <div class="roof"></div><div class="chimney"><i></i><i></i><i></i></div>
+        <div class="house"><div class="window"><span></span></div><div class="door"></div><div class="wreath">✦</div></div>
+        <div class="tree tree-a"><b>✦</b><i></i><i></i><i></i></div><div class="tree tree-b"><b>✦</b><i></i><i></i><i></i></div>
+      </div>
+      <div class="scene" id="scene">
+        <div class="sparkles" id="sparkles"></div>
+        <div class="elf" id="elf" aria-label="En glad fjøsnisse">
+          <div class="hat"><i></i></div><div class="head"><div class="ear"></div><div class="face"><i class="eye left"></i><i class="eye right"></i><i class="nose"></i><i class="smile"></i></div><div class="beard"></div></div>
+          <div class="body"><i class="belt"></i><i class="buckle"></i></div><div class="arm"></div><div class="legs"><i></i><i></i></div>
+        </div>
+        <div class="sack" id="sack"><div class="sack-top"></div><div class="sack-body"><span>JULE<br>POST</span></div><div class="paper" id="paper"><b id="paperName">?</b></div></div>
+        <div class="speech" id="speech">God jul, lille venn!</div>
+      </div>
+
+      <div class="card login-card" id="loginCard">
+        <div class="seal">✦</div><h2>Klar for julemagi?</h2>
+        <p>Skriv navnet ditt og den private koden du fikk av arrangøren.</p>
+        <form id="loginForm">
+          <label>Navnet ditt<input id="name" name="name" autocomplete="name" placeholder="For eksempel Emma" required maxlength="60"></label>
+          <label>Privat kode<input id="code" name="code" autocomplete="one-time-code" placeholder="XXXX-XXXX" required maxlength="20"></label>
+          <button class="primary" type="submit">Finn min hemmelige julevenn! <span>→</span></button>
+          <p class="form-error" id="loginError"></p>
+        </form>
+      </div>
+
+      <div class="card waiting-card hidden" id="waitingCard">
+        <span class="tiny-stars">✦ ✧ ✦</span><h2 id="waitingTitle">Nissen gjør seg klar …</h2><p id="waitingText"></p>
+      </div>
+
+      <div class="card result-card hidden" id="resultCard">
+        <p class="eyebrow">DEN HEMMELIGE LAPPEN SIER</p><p id="resultLead"></p>
+        <div class="result-name" id="resultName"></div>
+        <p class="secret">🤫 Hysj! Dette er en hemmelighet. Ikke fortell noen hvem du fikk.</p>
+        <div id="recipientWish" class="wish-note hidden"></div>
+        <div class="result-actions"><button id="copyResult" class="primary small">Kopier privat</button><button id="hideResult" class="ghost">Lås og logg ut</button></div>
+      </div>
+    </section>
+
+    <section class="below">
+      <div class="countdown"><span>Frem til julaften</span><div id="countdown"><b>--</b> dager <b>--</b> timer <b>--</b> min</div></div>
+      <details class="wishlist"><summary>Min ønskeliste <span>+</span></summary><div><p>Ønskene dine blir bare vist til personen som har trukket deg.</p><textarea id="wishlist" maxlength="1000" placeholder="En god bok, ullsokker, opplevelser …"></textarea><button id="saveWishlist" class="ghost">Lagre ønskeliste</button><small id="wishStatus"></small></div></details>
+    </section>
+  </main>
+  <footer>Laget med granbar, stjernestøv og litt nissetryll ✦</footer>
+</body>
+</html>

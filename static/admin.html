@@ -1,0 +1,23 @@
+<!doctype html><html lang="nb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071f1d"><title>Nissekontoret</title><link rel="stylesheet" href="/styles.css?v=5"><script type="module" src="/admin.js?v=5"></script></head>
+<body class="admin-body"><div class="sky"><div id="snow"></div></div><main class="admin-shell">
+  <nav class="admin-nav"><a href="/">← Tilbake til spillet</a><span>✦ NISSEKONTORET ✦</span><button id="logout" class="text-button hidden">Logg ut</button></nav>
+  <section id="auth" class="card auth-card">
+    <div class="seal">✦</div><p class="eyebrow">BARE FOR HOVEDNISSEN</p><h1 id="authTitle">Lås opp nissekontoret</h1><p id="authHint">Skriv inn administratorpassordet.</p>
+    <form id="authForm"><label>Passord<input id="password" type="password" autocomplete="current-password" required minlength="10"></label><button class="primary">Åpne døren →</button><p id="authError" class="form-error"></p></form>
+  </section>
+  <section id="dashboard" class="dashboard hidden">
+    <header class="dash-head"><div><p class="eyebrow">ADMINISTRASJON</p><h1 id="roundHeading">Årets julemagi</h1></div><div class="stat"><b id="participantCount">0</b><span>deltakere</span></div><div class="stat"><b id="openedCount">0</b><span>har åpnet</span></div></header>
+    <div class="admin-grid">
+      <section class="panel settings-panel"><div class="panel-title"><span>01</span><div><h2>Runden</h2><p>Detaljene alle deltakerne ser</p></div></div>
+        <form id="roundForm"><label>Navn på runden<input id="roundTitle" required maxlength="80"></label><div class="field-row"><label>Maksbudsjett (kr)<input id="budget" type="number" min="0" step="50"></label><label>Åpner<input id="opensAt" type="datetime-local"></label></div><label>Julaften / frist<input id="christmasDate" type="datetime-local" required></label><button class="ghost">Lagre innstillinger</button></form>
+      </section>
+      <section class="panel participant-panel"><div class="panel-title"><span>02</span><div><h2>Deltakere</h2><p>Navn og private adgangskoder</p></div></div>
+        <form id="addForm" class="add-form"><textarea id="newNames" placeholder="Ett navn per linje&#10;Emma&#10;Oliver&#10;Sofie" required></textarea><button class="primary small">Legg til</button></form><div id="createdCodes" class="created-codes hidden"></div><div id="people" class="people"></div>
+      </section>
+      <section class="panel rules-panel"><div class="panel-title"><span>03</span><div><h2>Unntaksregler</h2><p>Personer som ikke kan trekke hverandre</p></div></div>
+        <form id="ruleForm" class="rule-form"><select id="giver"></select><span>kan ikke trekke</span><select id="receiver"></select><button class="ghost">Legg til</button></form><div id="rules"></div>
+      </section>
+      <section class="panel launch-panel"><div class="panel-title"><span>04</span><div><h2>Start magien</h2><p>Fordelingen lages komplett på serveren</p></div></div><p id="launchCopy">Når du publiserer, låses deltakerlisten og alle får én unik julevenn.</p><button id="publish" class="primary launch">Trekk og åpne runden ✦</button><button id="newRound" class="ghost hidden">Start en ny runde</button><p id="adminStatus" class="form-error"></p></section>
+    </div>
+  </section>
+</main></body></html>
